@@ -24,19 +24,27 @@ public class StarbuzzDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE DRINK ("
-                + "_id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + "NAME TEXT, "
-                + "DESCRIPTION TEXT, "
-                + "IMAGE_RESOURCE_ID INTEGER);");
-        insertDrink(db, "Latte", "Espresso and steamed milk", R.drawable.latte);
-        insertDrink(db, "Cappuccino", "Espresso, hot milk and steamed-milk foam", R.drawable.cappuccino);
-        insertDrink(db, "Filter", "Our best drip coffee", R.drawable.filter);
-
+        updateDatabase(db, 0, DB_VERSION);
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        updateDatabase(sqLiteDatabase, oldVersion, newVersion);
+    }
 
+    private void updateDatabase(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion < 1) {
+            db.execSQL("CREATE TABLE DRINK ("
+                    + "_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + "NAME TEXT, "
+                    + "DESCRIPTION TEXT, "
+                    + "IMAGE_RESOURCE_ID INTEGER);");
+            insertDrink(db, "Latte", "Espresso and steamed milk", R.drawable.latte);
+            insertDrink(db, "Cappuccino", "Espresso, hot milk and steamed-milk foam", R.drawable.cappuccino);
+            insertDrink(db, "Filter", "Our best drip coffee", R.drawable.filter);
+        }
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE DRINK ADD COLUMN FAVORITE NUMERIC;");
+        }
     }
 }
