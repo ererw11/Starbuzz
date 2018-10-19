@@ -3,7 +3,6 @@ package com.eemery.android.starbuzz;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -23,22 +22,15 @@ public class DrinkActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drink);
 
-        // Get the Drink from the intent
+        // Get the drink from the intent
         int drinkId = (Integer) getIntent().getExtras().get(EXTRA_DRINK_ID);
 
         // Create a cursor
         SQLiteOpenHelper starbuzzDatabaseHelper = new StarbuzzDatabaseHelper(this);
         try {
             SQLiteDatabase db = starbuzzDatabaseHelper.getReadableDatabase();
-            Cursor cursor = db.query("DRINK",
-                    new String[]{"NAME", "DESCRIPTION", "IMAGE_RESOURCE_ID", "FAVORITE"},
-                    "_id = ?",
-                    new String[]{Integer.toString(drinkId)},
-                    null,
-                    null,
-                    null);
-
-            // Move to the first record in the cursor
+            Cursor cursor = db.query("DRINK", new String[]{"NAME", "DESCRIPTION", "IMAGE_RESOURCE_ID", "FAVORITE"}, "_id = ?", new String[]{Integer.toString(drinkId)}, null, null, null);
+            // Move to the first record in the Cursor
             if (cursor.moveToFirst()) {
 
                 // Get the drink details from the cursor
@@ -47,35 +39,37 @@ public class DrinkActivity extends Activity {
                 int photoId = cursor.getInt(2);
                 boolean isFavorite = (cursor.getInt(3) == 1);
 
-                // Populate the Drink name
-                TextView name = findViewById(R.id.name);
+                // Populate the drink name
+                TextView name = (TextView) findViewById(R.id.name);
                 name.setText(nameText);
 
-                // Populate the Drink description
-                TextView description = findViewById(R.id.description);
+                // Populate the drink description
+                TextView description = (TextView) findViewById(R.id.description);
                 description.setText(descriptionText);
 
-                // Populate the Drink image
-                ImageView photo = findViewById(R.id.photo);
+                // Populate the drink image
+                ImageView photo = (ImageView) findViewById(R.id.photo);
                 photo.setImageResource(photoId);
                 photo.setContentDescription(nameText);
 
                 // Populate the favorite checkbox
-                CheckBox favorite = findViewById(R.id.favorite);
+                CheckBox favorite = (CheckBox) findViewById(R.id.favorite);
                 favorite.setChecked(isFavorite);
-
-                cursor.close();
             }
+            cursor.close();
+            db.close();
         } catch (SQLiteException e) {
-            Toast.makeText(this, "Database unavailable", Toast.LENGTH_SHORT).show();
+            Toast toast = Toast.makeText(this, "Database unavailable", Toast.LENGTH_SHORT);
+            toast.show();
         }
     }
 
+    // Update the database when the checkbox is clicked
     public void onFavoriteClicked(View view) {
-        int drinkID = (int) getIntent().getExtras().get(EXTRA_DRINK_ID);
+        int drinkId = (Integer) getIntent().getExtras().get(EXTRA_DRINK_ID);
 
         // Get the value of the checkbox
-        CheckBox favorite = findViewById(R.id.favorite);
+        CheckBox favorite = (CheckBox) findViewById(R.id.favorite);
         ContentValues drinkValues = new ContentValues();
         drinkValues.put("FAVORITE", favorite.isChecked());
 
@@ -83,13 +77,13 @@ public class DrinkActivity extends Activity {
         SQLiteOpenHelper starbuzzDatabaseHelper = new StarbuzzDatabaseHelper(this);
         try {
             SQLiteDatabase db = starbuzzDatabaseHelper.getWritableDatabase();
-            db.update("DRINK",
-                    drinkValues,
-                    "id = ?",
-                    new String[]{Integer.toString(drinkID)});
+            db.update("DRINK", drinkValues, "_id = ?", new String[]{Integer.toString(drinkId)});
             db.close();
-        } catch (SQLException e) {
-            Toast.makeText(this, "Database Unavailable", Toast.LENGTH_SHORT).show();
+        } catch (SQLiteException e) {
+            Toast toast = Toast.makeText(this, "Database unavailable", Toast.LENGTH_SHORT);
+            toast.show();
         }
     }
 }
+
+
