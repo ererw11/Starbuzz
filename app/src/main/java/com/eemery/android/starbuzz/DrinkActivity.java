@@ -15,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Objects;
+
 public class DrinkActivity extends Activity {
 
     public static final String EXTRA_DRINK_ID = "drinkId";
@@ -25,7 +27,7 @@ public class DrinkActivity extends Activity {
         setContentView(R.layout.activity_drink);
 
         // Get the drink from the intent
-        int drinkId = (Integer) getIntent().getExtras().get(EXTRA_DRINK_ID);
+        int drinkId = (Integer) Objects.requireNonNull(getIntent().getExtras()).get(EXTRA_DRINK_ID);
 
         // Create a cursor
         SQLiteOpenHelper starbuzzDatabaseHelper = new StarbuzzDatabaseHelper(this);
@@ -42,20 +44,20 @@ public class DrinkActivity extends Activity {
                 boolean isFavorite = (cursor.getInt(3) == 1);
 
                 // Populate the drink name
-                TextView name = (TextView) findViewById(R.id.name);
+                TextView name = findViewById(R.id.name);
                 name.setText(nameText);
 
                 // Populate the drink description
-                TextView description = (TextView) findViewById(R.id.description);
+                TextView description =  findViewById(R.id.description);
                 description.setText(descriptionText);
 
                 // Populate the drink image
-                ImageView photo = (ImageView) findViewById(R.id.photo);
+                ImageView photo = findViewById(R.id.photo);
                 photo.setImageResource(photoId);
                 photo.setContentDescription(nameText);
 
                 // Populate the favorite checkbox
-                CheckBox favorite = (CheckBox) findViewById(R.id.favorite);
+                CheckBox favorite = findViewById(R.id.favorite);
                 favorite.setChecked(isFavorite);
             }
             cursor.close();
